@@ -33,8 +33,11 @@ class FaceDetector:
         display_img = img.copy()
         prepared_faces = []
 
+        # Sort faces by position (top-left to bottom-right)
+        sorted_faces = sorted(faces, key=lambda f: (f[1], f[0]))
+
         # Loop through every single face detected
-        for (x, y, w, h) in faces:
+        for (x, y, w, h) in sorted_faces:
             # Draw a green bounding box around this face
             cv2.rectangle(display_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 

@@ -1,7 +1,8 @@
 # main.py
+import os
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap
 
 from views.ui_main_window import Ui_MainWindow
@@ -21,12 +22,36 @@ class MainWindow(QMainWindow):
         self.ui.upload_btn.clicked.connect(self.upload_image)
         self.ui.image_label.mousePressEvent = self.label_clicked
 
+        QTimer.singleShot(0, self.initialize_ui)
+
     def label_clicked(self, event):
         self.upload_image()
 
+    def initialize_ui(self):
+        """Initialize UI with ROC and accuracy on startup."""
+        self.generate_roc()
+        self.update_accuracy()
+
+    def update_accuracy(self):
+        """Update and display model accuracy."""
+        accuracy = self.controller.calculate_accuracy()
+        accuracy_percent = accuracy * 100
+        self.ui.accuracy_info.setText(f"Model Accuracy: {accuracy_percent:.2f}%")
+
     def generate_roc(self):
-        # TODO
-        ...
+        roc_path = self.controller.generate_roc()
+
+        if roc_path and os.path.exists(roc_path):
+            roc_pixmap = QPixmap(roc_path)
+            target_width = max(self.ui.roc_label.width(), 500)
+            target_height = max(self.ui.roc_label.height(), 300)
+            self.ui.roc_label.setPixmap(roc_pixmap.scaled(
+                target_width, target_height,
+                Qt.KeepAspectRatio, Qt.SmoothTransformation
+            ))
+            self.ui.roc_label.setText("")
+        else:
+            self.ui.roc_label.setText("ROC Curve unavailable")
 
     def upload_image(self):
         file_path, _ = QFileDialog.getOpenFileName(
