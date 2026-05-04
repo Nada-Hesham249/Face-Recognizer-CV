@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
 
         if file_path:
             try:
-                display_img, prepared_face, prediction, match_img_path = self.controller.handle_image_upload(file_path)
+                display_img, prepared_faces, prediction, match_img_path = self.controller.handle_image_upload(file_path)
 
                 pixmap = cv_img_to_pixmap(display_img)
                 self.ui.image_label.setPixmap(pixmap.scaled(

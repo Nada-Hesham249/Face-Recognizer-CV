@@ -13,18 +13,16 @@ class FaceDetector:
 
     def process_image(self, image_path):
         """
-        Reads an image, detects a face, and prepares it for PCA.
-        Returns: (display_image, prepared_face_matrix)
+        Reads an image, detects all faces, and prepares them for PCA.
+        Returns: (display_image, list_of_prepared_face_matrices)
         """
-        # Read image
         img = cv2.imread(image_path)
         if img is None:
             raise ValueError("Could not read the image.")
 
-        # Convert to grayscale for detection and PCA
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        # Detect faces
+        # Detect all faces in the image
         faces = self.face_cascade.detectMultiScale(
             gray,
             scaleFactor=1.1,
@@ -33,19 +31,18 @@ class FaceDetector:
         )
 
         display_img = img.copy()
-        prepared_face = None
+        prepared_faces = []
 
-        # If a face is found, process the first one detected
-        if len(faces) > 0:
-            (x, y, w, h) = faces[0]
-
-            # Draw a green bounding box on the color image for the UI
+        # Loop through every single face detected
+        for (x, y, w, h) in faces:
+            # Draw a green bounding box around this face
             cv2.rectangle(display_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-            # Crop the original grayscale image to just the face
+            # Crop the face
             cropped_face = gray[y:y + h, x:x + w]
 
-            # Resize to match the ORL dataset dimensions exactly
-            prepared_face = cv2.resize(cropped_face, self.target_size)
-            
-        return display_img, prepared_face
+            # Resize to match ORL and add to our list
+            resized_face = cv2.resize(cropped_face, self.target_size)
+            prepared_faces.append(resized_face)
+
+        return display_img, prepared_faces
