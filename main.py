@@ -70,8 +70,10 @@ class MainWindow(QMainWindow):
 
                 if prediction is not None:
                     self.ui.subject_info.setText(f"Matched Subject: {prediction}")
-                    self.ui.distance_info.setText("Confidence Score: High")
-
+                    if distance < 2500:
+                        self.ui.distance_info.setText("Confidence Score: High ")
+                    else:
+                        self.ui.distance_info.setText("Confidence Score: Not Match")
                     if match_img_path:
                         match_pixmap = QPixmap(match_img_path)
                         self.ui.match_label.setPixmap(match_pixmap.scaled(
@@ -84,7 +86,7 @@ class MainWindow(QMainWindow):
                     self.ui.subject_info.setText("Matched Subject: Not detected")
                     self.ui.distance_info.setText("Confidence Score: N/A")
                     self.ui.match_label.setText("✗ No face detected in image")
-
+                print(f"DEBUG distance: {distance}")
             except Exception as e:
                 print(f"Error processing image: {e}")
                 self.ui.subject_info.setText("Error")
